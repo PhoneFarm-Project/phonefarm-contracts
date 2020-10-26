@@ -1,0 +1,20 @@
+{
+  "name": "token_back",
+  "version": "1.0.0",
+  "description": "token back",
+  "main": "truffle.js",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.2.0",
+    "@openzeppelin/test-helpers": "^0.5.6",
+    "@truffle/hdwallet-provider": "^1.1.0",
+    "dotenv": "^8.2.0",
+    "solc": "0.6.6",
+    "truffle": "5.1.46",
+    "tslib": "^1.13.0"
+  },
+  "scripts": {
+    "migrate": "npx truffle migrate --network ropsten --reset && npx truffle exec scripts/masterFactorySetup.js --network ropsten",
+    "test": "npx truffle test",
+    "test-factory": "npx truffle test test/Factory.test.js"
+  }
+}
