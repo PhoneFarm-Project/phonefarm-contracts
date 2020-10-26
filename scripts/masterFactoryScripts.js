@@ -19,6 +19,7 @@ const PhoneTokenContract = new web3.eth.Contract(PhoneToken.abi, PhoneTokenAddre
 
 const PreSale = require('../../client/src/contracts/PreSale.json');
 const PreSaleAddress = PreSale.networks[process.env.NETWORK_ID].address;
+const PreSaleContract = new web3.eth.Contract(PreSale.abi, PreSaleAddress);
 const PreSaleAmount = '1000000000000000000000';
 
 const ERC20 = require('../../client/src/contracts/IERC20.json');
@@ -36,24 +37,24 @@ const Tokens = [
   {
     symbol: 'DAI',
     name: 'DAI',
-    address: '0xaD6D458402F60fD3Bd25163575031ACDce07538D'
+    address: '0xaD6D458402F60fD3Bd25163575031ACDce07538D',
   },
   {
     symbol: 'KNC',
     name: 'KNC',
-    address: '0x4E470dc7321E84CA96FcAEDD0C8aBCebbAEB68C6'
+    address: '0x4E470dc7321E84CA96FcAEDD0C8aBCebbAEB68C6',
   },
   {
     symbol: 'LINK',
     name: 'LINK',
-    address: '0xb4f7332ed719Eb4839f091EDDB2A3bA309739521'
+    address: '0xb4f7332ed719Eb4839f091EDDB2A3bA309739521',
   },
   {
     symbol: 'PHONE',
     name: 'PHONE',
     address: require('../../client/src/contracts/PhoneToken.json').networks[process.env.NETWORK_ID]
-      .address
-  }
+      .address,
+  },
 ];
 
 const getStartBlock = async function () {
@@ -129,7 +130,7 @@ const deposit = async function (poolId, amount) {
 
     await ERC20Contract.methods.approve(MasterFactoryAddress, amount).send({
       from: user1.address,
-      gas: process.env.ETH_GAS_LIMIT
+      gas: process.env.ETH_GAS_LIMIT,
     });
 
     await MasterFactoryContract.methods
@@ -148,7 +149,7 @@ const depositFor = async function (beneficiary, poolId, amount) {
 
     await ERC20Contract.methods.approve(MasterFactoryAddress, amount).send({
       from: user1.address,
-      gas: process.env.ETH_GAS_LIMIT
+      gas: process.env.ETH_GAS_LIMIT,
     });
 
     await MasterFactoryContract.methods
@@ -164,7 +165,7 @@ const transferIPhoneTokenOwnership = async function () {
   try {
     await IPhoneTokenContract.methods.transferOwnership(MasterFactoryAddress).send({
       from: operator.address,
-      gas: process.env.ETH_GAS_LIMIT
+      gas: process.env.ETH_GAS_LIMIT,
     });
   } catch (err) {
     console.log(err);
@@ -263,12 +264,72 @@ const phoneBalanceOf = async function (address) {
   }
 };
 
+const addTokenToPreSale = async function (erc20Address) {
+  try {
+    await PreSaleContract.methods
+      .addToken(erc20Address)
+      .send({ from: operator.address, gas: process.env.ETH_GAS_LIMIT });
+    return;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+const removeTokenFromPreSale = async function (erc20Address) {
+  try {
+    await PreSaleContract.methods
+      .removeToken(erc20Address)
+      .send({ from: operator.address, gas: process.env.ETH_GAS_LIMIT });
+    return;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+const buyPhoneTokenByERC20 = async function (erc20Address, amount) {
+  try {
+    const ERC20Contract = new web3.eth.Contract(ERC20.abi, erc20Address);
+
+    await ERC20Contract.methods.approve(PreSaleAddress, amount).send({
+      from: user1.address,
+      gas: process.env.ETH_GAS_LIMIT,
+    });
+
+    await PreSaleContract.methods
+      .buyPhoneTokenByERC20(erc20Address, amount)
+      .send({ from: user1.address, gas: process.env.ETH_GAS_LIMIT });
+    return;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+
+const erc2ToPhoneToken = async function (erc20Address, amount) {
+  try {
+    const ERC20Contract = new web3.eth.Contract(ERC20.abi, erc20Address);
+
+    let result = await PreSaleContract.methods
+      .erc20ToPhoneToken(erc20Address, amount)
+      .call();
+
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
 // getTotalAllocPoint();
 // getStartBlock();
 // getBonusEndBlock();
 // getPoolLength();
 // getPoolInfo(0);
-addPool(1, Tokens[0].address, false);
+// addPool(1, Tokens[0].address, false);
 // transferIPhoneTokenOwnership();
 // deposit(0, '1000000000000000000');
 // getUserInfo(0, user2.address);
@@ -277,11 +338,25 @@ addPool(1, Tokens[0].address, false);
 // iPhoneBalanceOf(user2.address);
 // withdraw(0, '500000000000000000');
 // emergencyWithdraw(0);
-// phoneBalanceOf(PreSaleAddress);
+// phoneBalanceOf(user1.address);
 // mintPhoneTokenForPreSale();
 // mintPhoneToken('0x20c4E8bB8F76D99a89ce75cE28A3Cabc8fE4F9Dc', '10000000000000000000');
 
+// DAI
+// addTokenToPreSale(Tokens[0].address);
+
+// DAI
+// removeTokenFromPreSale(Tokens[0].address);
+
+// Buy PhoneToken by DAI
+// buyPhoneTokenByERC20(Tokens[0].address, '4000000000000000000');
+
+// erc2ToPhoneToken(Tokens[0].address, '4000000000000000000');
+
+
 module.exports = {
   transferIPhoneTokenOwnership,
-  mintPhoneTokenForPreSale
+  mintPhoneTokenForPreSale,
+  addTokenToPreSale,
+  Tokens,
 };
