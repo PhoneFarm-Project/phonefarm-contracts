@@ -310,10 +310,67 @@ const buyPhoneTokenByERC20 = async function (erc20Address, amount) {
 
 const erc2ToPhoneToken = async function (erc20Address, amount) {
   try {
-    const ERC20Contract = new web3.eth.Contract(ERC20.abi, erc20Address);
 
     let result = await PreSaleContract.methods
       .erc20ToPhoneToken(erc20Address, amount)
+      .call();
+
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+const withdrawETH = async function (amount) {
+  try {
+
+    await PreSaleContract.methods
+      .withdrawETH(amount)
+      .send({ from: operator.address, gas: process.env.ETH_GAS_LIMIT });
+
+    return;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+const withdrawPHONE = async function (amount) {
+  try {
+
+    await PreSaleContract.methods
+      .withdrawPHONE(amount)
+      .send({ from: operator.address, gas: process.env.ETH_GAS_LIMIT });
+
+    return;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+const withdrawERC20 = async function (token, amount) {
+  try {
+
+    await PreSaleContract.methods
+      .withdrawERC20(token, amount)
+      .send({ from: operator.address, gas: process.env.ETH_GAS_LIMIT });
+
+    return;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+const erc20BalanceOf = async function (erc20Address, address) {
+  try {
+    const ERC20Contract = new web3.eth.Contract(ERC20.abi, erc20Address);
+
+    let result = await ERC20Contract.methods
+      .balanceOf(address)
       .call();
 
     console.log(result);
@@ -338,7 +395,7 @@ const erc2ToPhoneToken = async function (erc20Address, amount) {
 // iPhoneBalanceOf(user2.address);
 // withdraw(0, '500000000000000000');
 // emergencyWithdraw(0);
-// phoneBalanceOf(user1.address);
+// phoneBalanceOf(operator.address);
 // mintPhoneTokenForPreSale();
 // mintPhoneToken('0x20c4E8bB8F76D99a89ce75cE28A3Cabc8fE4F9Dc', '10000000000000000000');
 
@@ -353,6 +410,11 @@ const erc2ToPhoneToken = async function (erc20Address, amount) {
 
 // erc2ToPhoneToken(Tokens[0].address, '4000000000000000000');
 
+// erc20BalanceOf(Tokens[0].address, PreSaleAddress);
+// erc20BalanceOf(Tokens[0].address, operator.address);
+
+// withdrawERC20(Tokens[0].address, '4000000000000000000');
+// withdrawPHONE('992805456271193313000');
 
 module.exports = {
   transferIPhoneTokenOwnership,

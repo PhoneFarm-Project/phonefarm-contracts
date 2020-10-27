@@ -186,6 +186,20 @@ contract PreSale is Ownable {
         phone.safeTransfer(msg.sender, _amount);
     }
 
+    /**
+     * @dev function withdraw ERC20 token to account owner
+     * @param _token is address of the token
+     * @param _amount is amount withdraw
+     */
+    function withdrawERC20(address _token ,uint256 _amount) public onlyOwner {
+        require(_amount > 0, "_amount must be greater than 0");
+        require(
+            IERC20(_token).balanceOf(address(this)) >= _amount,
+            "The balance is not enough!"
+        );
+        IERC20(_token).transfer(msg.sender, _amount);
+    }
+
     event Received(address, uint256);
 
     receive() external payable {
