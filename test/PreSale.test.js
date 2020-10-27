@@ -17,6 +17,8 @@ const PRESALE_AMOUNT = ether('10000');
 const ALICE_BUY_BY_ETH = ether('1');
 const ALICE_BUY_BY_DAI = ether('500');
 
+const BOB_BUY_BY_DAI = ether('500');
+
 contract('PreSale', ([operator, poolMaker, alice, bob]) => {
   beforeEach(async () => {
     this.phoneToken = await PhoneToken.new({ from: operator });
@@ -24,22 +26,35 @@ contract('PreSale', ([operator, poolMaker, alice, bob]) => {
     this.weth = await WETH.new({ from: operator });
     this.factory = await UniswapV2Factory.new(operator, { from: operator });
 
-    this.preSale = await PreSale.new(this.phoneToken.address, this.weth.address, this.factory.address, { from: operator });
+    this.preSale = await PreSale.new(
+      this.phoneToken.address,
+      this.weth.address,
+      this.factory.address,
+      { from: operator }
+    );
     this.defaultRate = 1000;
     await this.phoneToken.mint(this.preSale.address, PRESALE_AMOUNT, { from: operator });
-
 
     await this.dai.mint(poolMaker, DAI_IN_POOL, { from: operator });
     await this.factory.createPair(this.dai.address, this.weth.address, { from: poolMaker });
 
-    this.router = await UniswapV2Router02.new(this.factory.address, this.weth.address, { from: operator });
+    this.router = await UniswapV2Router02.new(this.factory.address, this.weth.address, {
+      from: operator,
+    });
 
     await this.dai.approve(this.router.address, DAI_IN_POOL, { from: poolMaker });
-    await this.router.addLiquidityETH(this.dai.address, DAI_IN_POOL, MIN_DAI, WETH_IN_POOL, poolMaker, { from: poolMaker, value: WETH_IN_POOL });
+    await this.router.addLiquidityETH(
+      this.dai.address,
+      DAI_IN_POOL,
+      MIN_DAI,
+      WETH_IN_POOL,
+      poolMaker,
+      { from: poolMaker, value: WETH_IN_POOL }
+    );
 
-    expect(
-      await this.factory.getPair(this.dai.address, this.weth.address)
-    ).eq(await this.router.getPairFor(this.dai.address, this.weth.address));
+    expect(await this.factory.getPair(this.dai.address, this.weth.address)).eq(
+      await this.router.getPairFor(this.dai.address, this.weth.address)
+    );
 
     let pairAddress = await this.factory.getPair(this.dai.address, this.weth.address);
 
@@ -53,15 +68,9 @@ contract('PreSale', ([operator, poolMaker, alice, bob]) => {
   });
 
   it('Only operator can call lockIn(), unlock(), changeRate()...', async () => {
-    await expectRevert(
-      this.preSale.lockIn({ from: bob }),
-      'Ownable: caller is not the owner'
-    );
+    await expectRevert(this.preSale.lockIn({ from: bob }), 'Ownable: caller is not the owner');
 
-    await expectRevert(
-      this.preSale.unlock({ from: bob }),
-      'Ownable: caller is not the owner'
-    );
+    await expectRevert(this.preSale.unlock({ from: bob }), 'Ownable: caller is not the owner');
 
     await expectRevert(
       this.preSale.changeRate(2000, { from: bob }),
@@ -87,7 +96,6 @@ contract('PreSale', ([operator, poolMaker, alice, bob]) => {
       this.preSale.withdrawERC20(this.dai.address, ether('1'), { from: bob }),
       'Ownable: caller is not the owner'
     );
-
   });
 
   it('change rate to 0', async () => {
@@ -137,7 +145,7 @@ contract('PreSale', ([operator, poolMaker, alice, bob]) => {
     expectEvent(buyToken, 'BuyToken', {
       buyer: alice,
       phoneAmount: ether('1000'),
-      rate: this.defaultRate.toString()
+      rate: this.defaultRate.toString(),
     });
   });
 
@@ -146,7 +154,8 @@ contract('PreSale', ([operator, poolMaker, alice, bob]) => {
     await this.dai.approve(this.preSale.address, ALICE_BUY_BY_DAI, { from: alice });
     expectRevert(
       this.preSale.buyPhoneTokenByERC20(this.dai.address, ALICE_BUY_BY_DAI, { from: alice }),
-      "Token is not accepted!");
+      'Token is not accepted!'
+    );
   });
 
   it('alice buy phone token by dai successfully', async () => {
@@ -154,15 +163,18 @@ contract('PreSale', ([operator, poolMaker, alice, bob]) => {
     await this.dai.approve(this.preSale.address, ALICE_BUY_BY_DAI, { from: alice });
     await this.preSale.addToken(this.dai.address, { from: operator });
 
-    let buyToken = await this.preSale.buyPhoneTokenByERC20(this.dai.address, ALICE_BUY_BY_DAI, { from: alice });
+    let buyToken = await this.preSale.buyPhoneTokenByERC20(this.dai.address, ALICE_BUY_BY_DAI, {
+      from: alice,
+    });
     let alicePhoneBal = await this.phoneToken.balanceOf(alice);
 
-    let expectedAlicePhoneBalance = ((ALICE_BUY_BY_DAI * WETH_IN_POOL) / DAI_IN_POOL) * this.defaultRate;
+    let expectedAlicePhoneBalance =
+      ((ALICE_BUY_BY_DAI * WETH_IN_POOL) / DAI_IN_POOL) * this.defaultRate;
     assert.equal(expectedAlicePhoneBalance, alicePhoneBal);
     expectEvent(buyToken, 'BuyToken', {
       buyer: alice,
       phoneAmount: ether('1000'),
-      rate: this.defaultRate.toString()
+      rate: this.defaultRate.toString(),
     });
   });
 
@@ -215,5 +227,52 @@ contract('PreSale', ([operator, poolMaker, alice, bob]) => {
     await this.preSale.withdrawERC20(this.dai.address, ALICE_BUY_BY_DAI, { from: operator });
 
     expect(await this.dai.balanceOf(operator)).to.be.bignumber.eq(ALICE_BUY_BY_DAI);
+  });
+
+  it('bob buy first, alice buy phone by DAI after bob swap', async () => {
+    await this.dai.mint(bob, BOB_BUY_BY_DAI, { from: operator });
+    await this.dai.approve(this.preSale.address, BOB_BUY_BY_DAI, { from: bob });
+    await this.preSale.addToken(this.dai.address, { from: operator });
+
+    await this.preSale.buyPhoneTokenByERC20(this.dai.address, BOB_BUY_BY_DAI, {
+      from: bob,
+    });
+    let bobPhoneBal = await this.phoneToken.balanceOf(bob);
+
+    let expectedBobPhoneBalance =
+      ((BOB_BUY_BY_DAI * WETH_IN_POOL) / DAI_IN_POOL) * this.defaultRate;
+    assert.equal(expectedBobPhoneBalance, bobPhoneBal);
+
+    await this.router.swapExactETHForTokens(
+      ether('40'),
+      [this.weth.address, this.dai.address],
+      bob,
+      0,
+      { from: bob, value: ether('0.2') }
+    );
+
+    let reserves = await this.pair.getReserves();
+    let daiReserve = reserves.reserve0;
+    let ethReserve = reserves.reserve1;
+
+    if (this.dai.address < this.weth.address) {
+      daiReserve = reserves.reserve0;
+      ethReserve = reserves.reserve1;
+    } else {
+      daiReserve = reserves.reserve1;
+      ethReserve = reserves.reserve0;
+    }
+    await this.dai.mint(alice, ALICE_BUY_BY_DAI, { from: operator });
+    await this.dai.approve(this.preSale.address, ALICE_BUY_BY_DAI, { from: alice });
+
+    await this.preSale.buyPhoneTokenByERC20(this.dai.address, ALICE_BUY_BY_DAI, {
+      from: alice,
+    });
+    let alicePhoneBal = await this.phoneToken.balanceOf(alice);
+
+    let expectedAlicePhoneBalance =
+      ((ALICE_BUY_BY_DAI * ethReserve) / daiReserve) * this.defaultRate;
+
+    assert.equal(expectedAlicePhoneBalance, alicePhoneBal);
   });
 });
