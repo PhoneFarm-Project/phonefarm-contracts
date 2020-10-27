@@ -7,11 +7,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PhoneToken.sol";
 
-interface IUniswapV2Pair {
+interface IUniswapPair {
     function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
 }
 
-interface IUniswapV2Factory {
+interface IUniswapFactory {
     function getPair(address tokenA, address tokenB) external view returns (address pair);
 }
 
@@ -116,8 +116,8 @@ contract PreSale is Ownable {
 
     function calculatePhoneTokenAmount(address _token, uint256 _amount) internal view returns (uint256) {
 
-        address pairAddress = IUniswapV2Factory(uniswapV2FactoryAddress).getPair(_token, WETH);
-        (uint112 _reserve0, uint112 _reserve1,) = IUniswapV2Pair(pairAddress).getReserves();
+        address pairAddress = IUniswapFactory(uniswapV2FactoryAddress).getPair(_token, WETH);
+        (uint112 _reserve0, uint112 _reserve1,) = IUniswapPair(pairAddress).getReserves();
 
         uint256 reserve0 = uint256(_reserve0);
         uint256 reserve1 = uint256(_reserve1);
