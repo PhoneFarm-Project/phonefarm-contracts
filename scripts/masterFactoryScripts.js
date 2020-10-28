@@ -1,28 +1,27 @@
 require('dotenv').config();
 
-const BN = require('bn.js');
-
+const { CONSTANTS } = require('../constants');
 const Web3 = require('web3');
 const web3 = new Web3('https://ropsten.infura.io/v3/' + process.env.INFURA_PROJECT_ID);
 
-const MasterFactory = require('../../client/src/contracts/MasterFactory.json');
+const MasterFactory = require('../build/contracts/MasterFactory.json');
 const MasterFactoryAddress = MasterFactory.networks[process.env.NETWORK_ID].address;
 const MasterFactoryContract = new web3.eth.Contract(MasterFactory.abi, MasterFactoryAddress);
 
-const IPhoneToken = require('../../client/src/contracts/IPhoneToken.json');
+const IPhoneToken = require('../build/contracts/IPhoneToken.json');
 const IPhoneTokenAddress = IPhoneToken.networks[process.env.NETWORK_ID].address;
 const IPhoneTokenContract = new web3.eth.Contract(IPhoneToken.abi, IPhoneTokenAddress);
 
-const PhoneToken = require('../../client/src/contracts/PhoneToken.json');
+const PhoneToken = require('../build/contracts/PhoneToken.json');
 const PhoneTokenAddress = PhoneToken.networks[process.env.NETWORK_ID].address;
 const PhoneTokenContract = new web3.eth.Contract(PhoneToken.abi, PhoneTokenAddress);
 
-const PreSale = require('../../client/src/contracts/PreSale.json');
+const PreSale = require('../build/contracts/PreSale.json');
 const PreSaleAddress = PreSale.networks[process.env.NETWORK_ID].address;
 const PreSaleContract = new web3.eth.Contract(PreSale.abi, PreSaleAddress);
-const PreSaleAmount = '1000000000000000000000';
+const PreSaleAmount = CONSTANTS[process.env.NETWORK_ID].preSaleAmount;
 
-const ERC20 = require('../../client/src/contracts/IERC20.json');
+const ERC20 = require('../build/contracts/IERC20.json');
 
 const operator = web3.eth.accounts.privateKeyToAccount(process.env.OPERATOR_PRIVATE_KEY);
 web3.eth.accounts.wallet.add(operator);
@@ -52,8 +51,7 @@ const Tokens = [
   {
     symbol: 'PHONE',
     name: 'PHONE',
-    address: require('../../client/src/contracts/PhoneToken.json').networks[process.env.NETWORK_ID]
-      .address,
+    address: require('../build/contracts/PhoneToken.json').networks[process.env.NETWORK_ID].address,
   },
 ];
 
@@ -307,13 +305,9 @@ const buyPhoneTokenByERC20 = async function (erc20Address, amount) {
   }
 };
 
-
 const erc2ToPhoneToken = async function (erc20Address, amount) {
   try {
-
-    let result = await PreSaleContract.methods
-      .erc20ToPhoneToken(erc20Address, amount)
-      .call();
+    let result = await PreSaleContract.methods.erc20ToPhoneToken(erc20Address, amount).call();
 
     console.log(result);
     return result;
@@ -325,7 +319,6 @@ const erc2ToPhoneToken = async function (erc20Address, amount) {
 
 const withdrawETH = async function (amount) {
   try {
-
     await PreSaleContract.methods
       .withdrawETH(amount)
       .send({ from: operator.address, gas: process.env.ETH_GAS_LIMIT });
@@ -339,7 +332,6 @@ const withdrawETH = async function (amount) {
 
 const withdrawPHONE = async function (amount) {
   try {
-
     await PreSaleContract.methods
       .withdrawPHONE(amount)
       .send({ from: operator.address, gas: process.env.ETH_GAS_LIMIT });
@@ -353,7 +345,6 @@ const withdrawPHONE = async function (amount) {
 
 const withdrawERC20 = async function (token, amount) {
   try {
-
     await PreSaleContract.methods
       .withdrawERC20(token, amount)
       .send({ from: operator.address, gas: process.env.ETH_GAS_LIMIT });
@@ -369,9 +360,7 @@ const erc20BalanceOf = async function (erc20Address, address) {
   try {
     const ERC20Contract = new web3.eth.Contract(ERC20.abi, erc20Address);
 
-    let result = await ERC20Contract.methods
-      .balanceOf(address)
-      .call();
+    let result = await ERC20Contract.methods.balanceOf(address).call();
 
     console.log(result);
     return result;
@@ -420,5 +409,4 @@ module.exports = {
   transferIPhoneTokenOwnership,
   mintPhoneTokenForPreSale,
   addTokenToPreSale,
-  Tokens,
 };
