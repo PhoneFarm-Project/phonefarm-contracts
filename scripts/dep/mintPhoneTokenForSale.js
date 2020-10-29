@@ -14,14 +14,15 @@ module.exports = async () => {
       throw new Error('Invalid Network ID!');
     }
 
-    const Devices = artifacts.require('Devices');
-    const Store = artifacts.require('Store');
+    const { CONSTANTS } = require('../../constants');
+    const PhoneToken = artifacts.require('PhoneToken');
+    const Sale = artifacts.require('Sale');
 
-    const storeAddress = (await Store.deployed()).address;
+    const saleAddress = (await Sale.deployed()).address;
 
-    const devicesInstance = await Devices.deployed();
+    const phoneTokenInstance = await PhoneToken.deployed();
 
-    let receipt = await devicesInstance.approveStore(storeAddress);
+    let receipt = await phoneTokenInstance.mint(saleAddress, CONSTANTS[networkId].saleAmount);
 
     console.log(receipt);
     process.exit(0);

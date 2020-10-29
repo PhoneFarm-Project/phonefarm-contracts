@@ -21,13 +21,16 @@ module.exports = async () => {
       CONSTANTS[networkId].contracts.masterFactory.address
     );
 
-    let receipt = await masterFactoryInstance.add(
-      CONSTANTS[networkId].phoneAllocationPoint,
-      CONSTANTS[networkId].contracts.phoneToken.address,
-      false
-    );
+    for (let i = 0; i < CONSTANTS[networkId].poolTokens.length; i++) {
+      console.log(`Add ${CONSTANTS[networkId].poolTokens[i].symbol} Pool!`);
+      await masterFactoryInstance.add(
+        CONSTANTS[networkId].poolTokens[i].allocationPoint,
+        CONSTANTS[networkId].poolTokens[i].address,
+        false
+      );
+      console.log(`Add ${CONSTANTS[networkId].poolTokens[i].symbol} Pool successfully!\n\n`);
+    }
 
-    console.log(receipt);
     process.exit(0);
   } catch (err) {
     console.log(err);

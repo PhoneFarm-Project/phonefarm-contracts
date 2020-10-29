@@ -6,14 +6,16 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PhoneToken.sol";
+import "./uniswapInterfaces/IUniswapFactory.sol";
+import "./uniswapInterfaces/IUniswapPair.sol";
 
-interface IUniswapPair {
-    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
-}
+// interface IUniswapPair {
+//     function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+// }
 
-interface IUniswapFactory {
-    function getPair(address tokenA, address tokenB) external view returns (address pair);
-}
+// interface IUniswapFactory {
+//     function getPair(address tokenA, address tokenB) external view returns (address pair);
+// }
 
 contract Sale is Ownable {
     using SafeMath for uint256;
@@ -140,7 +142,7 @@ contract Sale is Ownable {
         uint256 phoneAmount = (msg.value).mul(rate);
         require(
             phoneAmount <= preSaleBal,
-            "total phone token purchased must be less than preSaleBal"
+            "total phone token purchased must be less than saleBal"
         );
         phone.safeTransfer(msg.sender, phoneAmount);
         emit BuyToken(msg.sender, phoneAmount, rate);

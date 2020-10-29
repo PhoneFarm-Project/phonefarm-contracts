@@ -15,13 +15,16 @@ module.exports = async () => {
     }
 
     const { CONSTANTS } = require('../../constants');
-    const Devices = artifacts.require('Devices');
+    const Sale = artifacts.require('Sale');
 
-    const devicesInstance = await Devices.at(CONSTANTS[networkId].contracts.devices.address);
+    const saleInstance = await Sale.at(CONSTANTS[networkId].contracts.sale.address);
 
-    let receipt = await devicesInstance.approveStore(CONSTANTS[networkId].contracts.store.address);
+    for (let i = 0; i < CONSTANTS[networkId].saleTokens.length; i++) {
+      console.log(`Add ${CONSTANTS[networkId].saleTokens[i].symbol} to Sale!`);
+      await saleInstance.addToken(CONSTANTS[networkId].saleTokens[i].address);
+      console.log(`Add ${CONSTANTS[networkId].saleTokens[i].symbol} to Sale successfully!\n\n`);
+    }
 
-    console.log(receipt);
     process.exit(0);
   } catch (err) {
     console.log(err);

@@ -17,19 +17,30 @@ module.exports = {
         );
       },
       gas: 385281,
-      network_id: 3
-    }
+      network_id: 3,
+    },
+
+    rinkeby: {
+      provider: function () {
+        return new HDWalletProvider(
+          process.env.OPERATOR_PRIVATE_KEY,
+          'https://rinkeby.infura.io/v3/'.concat(process.env.INFURA_PROJECT_ID)
+        );
+      },
+      gas: 6721975,
+      network_id: 4,
+    },
   },
   rpc: {
     host: 'localhost',
-    post: 8080
+    post: 8080,
   },
   mocha: {
-    useColors: true
+    useColors: true,
   },
   compilers: {
     solc: {
-      version: '0.6.6'
-    }
-  }
+      version: '0.6.6',
+    },
+  },
 };
