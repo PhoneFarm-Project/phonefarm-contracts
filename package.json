@@ -16,14 +16,15 @@
     "tslib": "^1.13.0"
   },
   "scripts": {
-    "dep:all": "yarn dep:migrate && yarn dep:transferOwner && yarn dep:mintPreSale && yarn dep:addToken && yarn dep:approveStore && yarn dep:addPhonePool",
+    "dep:all": "yarn dep:migrate && yarn dep:allSetup",
     "dep:migrate": "npx truffle migrate --network ropsten --reset",
+    "dep:allSetup": "npx truffle exec scripts/dep/end2end.js --network ropsten",
     "dep:transferOwner": "npx truffle exec scripts/dep/transferIPhoneOwnership.js --network ropsten",
     "dep:mintPreSale": "npx truffle exec scripts/dep/mintPhoneTokenForPreSale.js --network ropsten",
     "dep:addToken": "npx truffle exec scripts/dep/addTokenToPreSale.js --network ropsten",
     "dep:approveStore": "npx truffle exec scripts/dep/approveStore.js --network ropsten",
     "dep:addPhonePool": "npx truffle exec scripts/dep/addPhoneTokenPool.js --network ropsten",
-    "nonDep:all": "yarn nonDep:transferOwner && yarn nonDep:mintPreSale && yarn nonDep:addToken && yarn nonDep:approveStore && yarn nonDep:addPhonePool",
+    "nonDep:allSetup": "npx truffle exec scripts/nonDep/end2end.js --network ropsten",
     "nonDep:transferOwner": "npx truffle exec scripts/nonDep/transferIPhoneOwnership.js --network ropsten",
     "nonDep:mintPreSale": "npx truffle exec scripts/nonDep/mintPhoneTokenForPreSale.js --network ropsten",
     "nonDep:addToken": "npx truffle exec scripts/nonDep/addTokenToPreSale.js --network ropsten",

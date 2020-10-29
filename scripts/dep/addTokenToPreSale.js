@@ -1,4 +1,3 @@
-/** @format */
 module.exports = async () => {
   try {
     require('dotenv').config();
@@ -7,17 +6,15 @@ module.exports = async () => {
 
     const preSaleInstance = await PreSale.deployed();
 
-    // DAI
-    let receipt = await preSaleInstance.addToken(
-      CONSTANTS[process.env.NETWORK_ID].tokens.dai.address
-    );
-    console.log(receipt);
-
-    // LINK
-    receipt = await preSaleInstance.addToken(CONSTANTS[process.env.NETWORK_ID].tokens.link.address);
-
-    console.log(receipt);
-
+    for (let i = 0; i < CONSTANTS[process.env.NETWORK_ID].preSaleTokens.length; i++) {
+      console.log(`Add ${CONSTANTS[process.env.NETWORK_ID].preSaleTokens[i].symbol} to PreSale!`);
+      await preSaleInstance.addToken(CONSTANTS[process.env.NETWORK_ID].preSaleTokens[i].address);
+      console.log(
+        `Add ${
+          CONSTANTS[process.env.NETWORK_ID].preSaleTokens[i].symbol
+        } to PreSale successfully!\n\n`
+      );
+    }
     process.exit(0);
   } catch (err) {
     console.log(err);

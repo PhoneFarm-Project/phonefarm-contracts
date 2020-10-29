@@ -1,20 +1,20 @@
 const CONSTANTS = {
   // ropsten
   3: {
-    tokens: {
-      dai: {
-        address: '0xad6d458402f60fd3bd25163575031acdce07538d',
-        symbol: 'DAI',
-      },
-      link: {
-        address: '0xb4f7332ed719Eb4839f091EDDB2A3bA309739521',
-        symbol: 'LINK',
-      },
-      weth: {
-        address: '0xc778417e063141139fce010982780140aa0cd5ab',
-        symbol: 'WETH',
-      },
+    weth: {
+      address: '0xc778417e063141139fce010982780140aa0cd5ab',
+      symbol: 'WETH',
     },
+    preSaleTokens: [
+      {
+        symbol: 'DAI',
+        address: '0xad6d458402f60fd3bd25163575031acdce07538d',
+      },
+      {
+        symbol: 'LINK',
+        address: '0xb4f7332ed719Eb4839f091EDDB2A3bA309739521',
+      },
+    ],
     contracts: {
       masterFactory: {
         address: '0x6111Bdeb06fb24CC3dC13f308A0D5F44cB366Be3',
@@ -45,24 +45,24 @@ const CONSTANTS = {
 
   // mainnet
   1: {
-    tokens: {
-      dai: {
-        address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    weth: {
+      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      symbol: 'WETH',
+    },
+    preSaleTokens: [
+      {
         symbol: 'DAI',
+        address: '0x6b175474e89094c44da98b954eedeac495271d0f',
       },
-      link: {
-        address: '0x514910771af9ca656af840dff83e8264ecf986ca',
+      {
         symbol: 'LINK',
+        address: '0x514910771af9ca656af840dff83e8264ecf986ca',
       },
-      band: {
+      {
         address: '0xba11d00c5f74255f56a5e366f4f77f5a186d7f55',
         symbol: 'BAND',
       },
-      weth: {
-        address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-        symbol: 'WETH',
-      },
-    },
+    ],
     contracts: {
       masterFactory: {
         address: '',
