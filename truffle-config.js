@@ -17,7 +17,7 @@ module.exports = {
           'https://ropsten.infura.io/v3/'.concat(process.env.INFURA_PROJECT_ID)
         );
       },
-      gas: 5882407,
+      gas: 3500000,
       network_id: 3,
     },
   },

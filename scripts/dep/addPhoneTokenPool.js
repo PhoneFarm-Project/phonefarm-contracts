@@ -10,7 +10,7 @@ module.exports = async () => {
     const phoneTokenAddress = (await PhoneToken.deployed()).address;
 
     const receipt = await masterFactoryInstance.add(
-      CONSTANTS[3].phoneAllocationPoint,
+      CONSTANTS[process.env.NETWORK_ID].phoneAllocationPoint,
       phoneTokenAddress,
       false
     );

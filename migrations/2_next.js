@@ -17,7 +17,7 @@ module.exports = async function (deployer) {
     await deployer.deploy(
       PreSale,
       phoneTokenAddress,
-      CONSTANTS[networkId].tokens.weth.address,
+      CONSTANTS[networkId].weth.address,
       CONSTANTS[networkId].uniSwapV2FactoryAddress
     );
     // Deploy IPHONE Token

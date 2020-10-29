@@ -1,4 +1,3 @@
-/** @format */
 module.exports = async () => {
   try {
     require('dotenv').config();
