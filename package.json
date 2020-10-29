@@ -2,7 +2,7 @@
   "name": "token_back",
   "version": "1.0.0",
   "description": "token back",
-  "main": "truffle.js",
+  "main": "truffle-config.js",
   "dependencies": {
     "@openzeppelin/contracts": "^3.2.0",
     "@openzeppelin/test-helpers": "^0.5.6",
@@ -12,10 +12,23 @@
     "dotenv": "^8.2.0",
     "solc": "0.6.6",
     "truffle": "5.1.46",
+    "truffle-contract": "^4.0.31",
     "tslib": "^1.13.0"
   },
   "scripts": {
-    "migrate": "npx truffle migrate --network ropsten --reset && npx truffle exec scripts/masterFactorySetup.js --network ropsten",
+    "dep:all": "yarn dep:migrate && yarn dep:transferOwner && yarn dep:mintPreSale && yarn dep:addToken && yarn dep:approveStore && yarn dep:addPhonePool",
+    "dep:migrate": "npx truffle migrate --network ropsten --reset",
+    "dep:transferOwner": "npx truffle exec scripts/dep/transferIPhoneOwnership.js --network ropsten",
+    "dep:mintPreSale": "npx truffle exec scripts/dep/mintPhoneTokenForPreSale.js --network ropsten",
+    "dep:addToken": "npx truffle exec scripts/dep/addTokenToPreSale.js --network ropsten",
+    "dep:approveStore": "npx truffle exec scripts/dep/approveStore.js --network ropsten",
+    "dep:addPhonePool": "npx truffle exec scripts/dep/addPhoneTokenPool.js --network ropsten",
+    "nonDep:all": "yarn nonDep:transferOwner && yarn nonDep:mintPreSale && yarn nonDep:addToken && yarn nonDep:approveStore && yarn nonDep:addPhonePool",
+    "nonDep:transferOwner": "npx truffle exec scripts/nonDep/transferIPhoneOwnership.js --network ropsten",
+    "nonDep:mintPreSale": "npx truffle exec scripts/nonDep/mintPhoneTokenForPreSale.js --network ropsten",
+    "nonDep:addToken": "npx truffle exec scripts/nonDep/addTokenToPreSale.js --network ropsten",
+    "nonDep:approveStore": "npx truffle exec scripts/nonDep/approveStore.js --network ropsten",
+    "nonDep:addPhonePool": "npx truffle exec scripts/nonDep/addPhoneTokenPool.js --network ropsten",
     "test": "npx truffle test",
     "test-factory": "npx truffle test test/Factory.test.js",
     "test-presale": "npx truffle test test/PreSale.test.js"
