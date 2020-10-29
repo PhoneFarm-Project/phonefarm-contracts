@@ -10,27 +10,26 @@ module.exports = {
     //   network_id: '*'
     // },
     ropsten: {
-      networkCheckTimeout: 100000,
       provider: function () {
         return new HDWalletProvider(
           process.env.OPERATOR_PRIVATE_KEY,
           'https://ropsten.infura.io/v3/'.concat(process.env.INFURA_PROJECT_ID)
         );
       },
-      gas: 3500000,
-      network_id: 3,
-    },
+      gas: 385281,
+      network_id: 3
+    }
   },
   rpc: {
     host: 'localhost',
-    post: 8080,
+    post: 8080
   },
   mocha: {
-    useColors: true,
+    useColors: true
   },
   compilers: {
     solc: {
-      version: '0.6.6',
-    },
-  },
+      version: '0.6.6'
+    }
+  }
 };

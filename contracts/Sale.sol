@@ -15,7 +15,7 @@ interface IUniswapFactory {
     function getPair(address tokenA, address tokenB) external view returns (address pair);
 }
 
-contract PreSale is Ownable {
+contract Sale is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for PhoneToken;
 
@@ -27,40 +27,20 @@ contract PreSale is Ownable {
     // The PHONE token!
     PhoneToken public phone;
     // Rate of token with ETH
-    uint256 public rate = 2000;
-    // lock private sale
-    bool public lock = false;
-
-    // List of addresses have purchased private sale
-    mapping ( address => uint256) public purchased;
-    // Purchase limit per address
-    uint256 public purchaseLimit = (50 ether) * rate;
-    // Time to sell private sale
-    uint256 public duration = 7 days;
-    // Time to start selling
-    uint256 public startTime;
+    uint256 public rate;
+    // lock presale
+    bool public lock;
 
     modifier isAccepted(address _token) {
         require(_token != WETH && _token != address(phone), "Token is not accepted!");
         _;
     }
 
-    // Check if the time for selling private sale has expired
-    modifier saleInProgress() {
-        require(now.sub(startTime) <= duration, "Private sale time has expired!");
-        _;
-    }
-
-     // Check lock
-    modifier notLock() {
-        require(!lock, "not in lock state");
-        _;
-    }
-
     // Constructor
-    constructor(
-        PhoneToken _phone, address _weth, address _uniswapV2FactoryAddress) public {
+    constructor(PhoneToken _phone, address _weth, address _uniswapV2FactoryAddress) public {
         phone = _phone;
+        rate = 1000;
+        lock = false;
         WETH = _weth;
         uniswapV2FactoryAddress = _uniswapV2FactoryAddress;
     }
@@ -73,33 +53,6 @@ contract PreSale is Ownable {
     function unlock() public onlyOwner {
         lock = false;
     }
-
-
-    /**
-     * @dev change purchaseLimit
-     * @param _limit is purchase limit per address
-     */
-    function changePurchaseLimit(uint256 _limit) public onlyOwner {
-        require(_limit > 0, "_limit must be greater than 0");
-        purchaseLimit = _limit;
-    }
-
-    /**
-     * @dev change duration
-     * @param _duration is time to sell private sale
-     */
-    function changeDuration(uint256 _duration) public onlyOwner {
-        require(_duration > 0, "_duration must be greater than 0");
-        purchaseLimit = _duration;
-    }
-
-    /**
-     * @dev start time sell private sale
-     */
-    function startSale() public onlyOwner {
-        startTime = now;
-    }
-
 
     /**
      * @dev change rate of token PHONE
@@ -117,7 +70,7 @@ contract PreSale is Ownable {
      * @param _token is address of the token
      */
     function addToken(address _token) public onlyOwner isAccepted(_token) {
-        require(!tokensList[_token], "This token was added!");
+        require(!tokensList[_token], "This token is already added!");
         tokensList[_token] = true;
     }
 
@@ -126,7 +79,7 @@ contract PreSale is Ownable {
      * @param _token is address of the token
      */
     function removeToken(address _token) public onlyOwner isAccepted(_token) {
-        require(tokensList[_token], "This token was removed!");
+        require(tokensList[_token], "This token is already removed!");
         tokensList[_token] = false;
     }
 
@@ -135,8 +88,8 @@ contract PreSale is Ownable {
      * @param _token is address of the token
      * @param _amount is amount of ERC20 token
      */
-    function buyByERC20(address _token, uint256 _amount) public notLock() saleInProgress() isAccepted(_token) {
-
+    function buyPhoneTokenByERC20(address _token, uint256 _amount) public isAccepted(_token){
+        require(!lock, "not in lock state");
         require(tokensList[_token], "Token is not accepted!");
 
         uint256 preSaleBal = phone.balanceOf(address(this));
@@ -147,16 +100,14 @@ contract PreSale is Ownable {
             "total phone token purchased must be less than preSaleBal"
         );
 
-        require(purchased[msg.sender].add(phoneAmount) <= purchaseLimit, "Users cannot buy past the purchase limit!");
-
         IERC20(_token).transferFrom(msg.sender, address(this), _amount);
         phone.safeTransfer(msg.sender, phoneAmount);
-        purchased[msg.sender] = purchased[msg.sender].add(phoneAmount);
         emit BuyToken(msg.sender, phoneAmount, rate);
     }
 
 
-    function erc20ToPhoneToken(address _token, uint256 _amount) public view notLock() isAccepted(_token) returns (uint256){
+    function erc20ToPhoneToken(address _token, uint256 _amount) public view isAccepted(_token) returns (uint256){
+        require(!lock, "not in lock state");
         require(tokensList[_token], "Token is not accepted!");
 
         uint256 phoneAmount = calculatePhoneTokenAmount(_token, _amount);
@@ -183,19 +134,15 @@ contract PreSale is Ownable {
     /**
      * @dev function buy token PHONE
      */
-    function buyByETH() public payable notLock() saleInProgress() {
+    function buyTokenPhone() public payable {
+        require(!lock, "not in lock state");
         uint256 preSaleBal = phone.balanceOf(address(this));
         uint256 phoneAmount = (msg.value).mul(rate);
-
         require(
             phoneAmount <= preSaleBal,
             "total phone token purchased must be less than preSaleBal"
         );
-
-        require(purchased[msg.sender].add(phoneAmount) <= purchaseLimit, "purchase limit exceeded!");
-
         phone.safeTransfer(msg.sender, phoneAmount);
-        purchased[msg.sender] = purchased[msg.sender].add(phoneAmount);
         emit BuyToken(msg.sender, phoneAmount, rate);
     }
 
