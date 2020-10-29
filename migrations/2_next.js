@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { CONSTANTS } = require('../constants');
 const PhoneToken = artifacts.require('PhoneToken');
-const PreSale = artifacts.require('PreSale');
+const Sale = artifacts.require('Sale');
 const IPhoneToken = artifacts.require('IPhoneToken');
 const MasterFactory = artifacts.require('MasterFactory');
 const Devices = artifacts.require('Devices');
@@ -15,7 +15,7 @@ module.exports = async function (deployer) {
     let phoneTokenAddress = PhoneToken.address;
 
     await deployer.deploy(
-      PreSale,
+      Sale,
       phoneTokenAddress,
       CONSTANTS[networkId].weth.address,
       CONSTANTS[networkId].uniSwapV2FactoryAddress
