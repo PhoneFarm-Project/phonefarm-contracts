@@ -17,17 +17,18 @@ module.exports = async () => {
     const { CONSTANTS } = require('../../constants');
     const MasterFactory = artifacts.require('MasterFactory');
 
-    const masterFactoryInstance = await MasterFactory.at(
-      CONSTANTS[networkId].contracts.masterFactory.address
-    );
+    const masterFactoryInstance = await MasterFactory.deployed();
 
-    let receipt = await masterFactoryInstance.add(
-      CONSTANTS[networkId].phoneAllocationPoint,
-      CONSTANTS[networkId].contracts.phoneToken.address,
-      false
-    );
+    for (let i = 0; i < CONSTANTS[networkId].poolTokens.length; i++) {
+      console.log(`Add ${CONSTANTS[networkId].poolTokens[i].symbol} Pool!`);
+      await masterFactoryInstance.add(
+        CONSTANTS[networkId].poolTokens[i].allocationPoint,
+        CONSTANTS[networkId].poolTokens[i].address,
+        false
+      );
+      console.log(`Add ${CONSTANTS[networkId].poolTokens[i].symbol} Pool successfully!\n\n`);
+    }
 
-    console.log(receipt);
     process.exit(0);
   } catch (err) {
     console.log(err);
