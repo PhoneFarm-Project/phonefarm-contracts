@@ -25,6 +25,7 @@
     "dep:approveStore": "npx truffle exec scripts/dep/approveStore.js",
     "dep:addPhonePool": "npx truffle exec scripts/dep/addPhoneTokenPool.js",
     "dep:addOtherPool": "npx truffle exec scripts/dep/addOtherTokensPool.js",
+    "dep:createDevices": "npx truffle exec scripts/dep/createDevices.js",
     "nonDep:allSetup": "npx truffle exec scripts/nonDep/end2end.js",
     "nonDep:transferOwner": "npx truffle exec scripts/nonDep/transferIPhoneOwnership.js",
     "nonDep:mintSale": "npx truffle exec scripts/nonDep/mintPhoneTokenForSale.js",
@@ -32,6 +33,7 @@
     "nonDep:approveStore": "npx truffle exec scripts/nonDep/approveStore.js",
     "nonDep:addPhonePool": "npx truffle exec scripts/nonDep/addPhoneTokenPool.js",
     "nonDep:addOtherPool": "npx truffle exec scripts/nonDep/addOtherTokensPool.js",
+    "nonDep:createDevices": "npx truffle exec scripts/nonDep/createDevices.js",
     "test": "npx truffle test",
     "test-factory": "npx truffle test test/Factory.test.js",
     "test-sale": "npx truffle test test/Sale.test.js"
