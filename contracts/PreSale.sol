@@ -120,6 +120,8 @@ contract PreSale is Ownable {
      */
     function addToken(address _token) public onlyOwner isAccepted(_token) {
         require(!tokensList[_token], "This token was added!");
+        address pairAddress = IUniswapFactory(uniswapV2FactoryAddress).getPair(_token, WETH);
+        require(pairAddress != address(0), "pair does not exist!");
         tokensList[_token] = true;
     }
 
