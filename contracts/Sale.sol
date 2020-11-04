@@ -22,29 +22,33 @@ contract Sale is Ownable {
     using SafeERC20 for PhoneToken;
 
     address public WETH;
-    address public uniswapV2FactoryAddress;
+    address public uniswapV2FactoryAddress = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
 
     mapping(address => bool) public tokensList;
 
     // The PHONE token!
     PhoneToken public phone;
     // Rate of token with ETH
-    uint256 public rate;
-    // lock presale
-    bool public lock;
+    uint256 public rate = 500;
+    // Lock sale
+    bool public lock = false;
 
     modifier isAccepted(address _token) {
         require(_token != WETH && _token != address(phone), "Token is not accepted!");
         _;
     }
 
+     // Check lock
+    modifier notLock() {
+        require(!lock, "not in lock state");
+        _;
+    }
+
     // Constructor
-    constructor(PhoneToken _phone, address _weth, address _uniswapV2FactoryAddress) public {
+    constructor(
+        PhoneToken _phone, address _weth) public {
         phone = _phone;
-        rate = 1000;
-        lock = false;
         WETH = _weth;
-        uniswapV2FactoryAddress = _uniswapV2FactoryAddress;
     }
 
     // Functions
@@ -72,7 +76,9 @@ contract Sale is Ownable {
      * @param _token is address of the token
      */
     function addToken(address _token) public onlyOwner isAccepted(_token) {
-        require(!tokensList[_token], "This token is already added!");
+        require(!tokensList[_token], "This token was added!");
+        address pairAddress = IUniswapFactory(uniswapV2FactoryAddress).getPair(_token, WETH);
+        require(pairAddress != address(0), "pair does not exist!");
         tokensList[_token] = true;
     }
 
@@ -81,7 +87,7 @@ contract Sale is Ownable {
      * @param _token is address of the token
      */
     function removeToken(address _token) public onlyOwner isAccepted(_token) {
-        require(tokensList[_token], "This token is already removed!");
+        require(tokensList[_token], "This token was removed!");
         tokensList[_token] = false;
     }
 
@@ -90,16 +96,16 @@ contract Sale is Ownable {
      * @param _token is address of the token
      * @param _amount is amount of ERC20 token
      */
-    function buyPhoneTokenByERC20(address _token, uint256 _amount) public isAccepted(_token){
-        require(!lock, "not in lock state");
+    function buyByERC20(address _token, uint256 _amount) public notLock() isAccepted(_token) {
+
         require(tokensList[_token], "Token is not accepted!");
 
-        uint256 preSaleBal = phone.balanceOf(address(this));
+        uint256 saleBal = phone.balanceOf(address(this));
         uint256 phoneAmount = calculatePhoneTokenAmount(_token, _amount);
 
         require(
-            phoneAmount <= preSaleBal,
-            "total phone token purchased must be less than preSaleBal"
+            phoneAmount <= saleBal,
+            "total phone token purchased must be less than saleBal"
         );
 
         IERC20(_token).transferFrom(msg.sender, address(this), _amount);
@@ -108,15 +114,14 @@ contract Sale is Ownable {
     }
 
 
-    function erc20ToPhoneToken(address _token, uint256 _amount) public view isAccepted(_token) returns (uint256){
-        require(!lock, "not in lock state");
+    function erc20ToPhoneToken(address _token, uint256 _amount) public view notLock() isAccepted(_token) returns (uint256){
         require(tokensList[_token], "Token is not accepted!");
 
         uint256 phoneAmount = calculatePhoneTokenAmount(_token, _amount);
         return phoneAmount;
     }
 
-    function calculatePhoneTokenAmount(address _token, uint256 _amount) internal view returns (uint256) {
+    function calculatePhoneTokenAmount(address _token, uint256 _amount) public view returns (uint256) {
 
         address pairAddress = IUniswapFactory(uniswapV2FactoryAddress).getPair(_token, WETH);
         (uint112 _reserve0, uint112 _reserve1,) = IUniswapPair(pairAddress).getReserves();
@@ -136,14 +141,15 @@ contract Sale is Ownable {
     /**
      * @dev function buy token PHONE
      */
-    function buyTokenPhone() public payable {
-        require(!lock, "not in lock state");
-        uint256 preSaleBal = phone.balanceOf(address(this));
+    function buyByETH() public payable notLock() {
+        uint256 saleBal = phone.balanceOf(address(this));
         uint256 phoneAmount = (msg.value).mul(rate);
+
         require(
-            phoneAmount <= preSaleBal,
+            phoneAmount <= saleBal,
             "total phone token purchased must be less than saleBal"
         );
+
         phone.safeTransfer(msg.sender, phoneAmount);
         emit BuyToken(msg.sender, phoneAmount, rate);
     }
