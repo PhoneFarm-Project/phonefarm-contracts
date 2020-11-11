@@ -16,7 +16,7 @@ module.exports = {
           'https://ropsten.infura.io/v3/'.concat(process.env.INFURA_PROJECT_ID)
         );
       },
-      gas: 385281,
+      gas: 6721975,
       network_id: 3,
     },
 
@@ -27,7 +27,7 @@ module.exports = {
           'https://rinkeby.infura.io/v3/'.concat(process.env.INFURA_PROJECT_ID)
         );
       },
-      gas: 6721975,
+      gas: 10000000,
       network_id: 4,
     },
   },

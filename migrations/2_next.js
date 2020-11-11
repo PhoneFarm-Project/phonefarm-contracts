@@ -14,12 +14,7 @@ module.exports = async function (deployer) {
     await deployer.deploy(PhoneToken);
     let phoneTokenAddress = PhoneToken.address;
 
-    await deployer.deploy(
-      Sale,
-      phoneTokenAddress,
-      CONSTANTS[networkId].weth.address,
-      CONSTANTS[networkId].uniSwapV2FactoryAddress
-    );
+    await deployer.deploy(Sale, phoneTokenAddress, CONSTANTS[networkId].weth.address);
     // Deploy IPHONE Token
     const instanceIphone = await deployer.deploy(IPhoneToken);
     // Deploy Master Factory
