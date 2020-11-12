@@ -21,7 +21,7 @@ contract Devices is ERC1155, Ownable {
 
     Spec[] private specs;
 
-    mapping(string => uint256) private modelToSpecId;
+    mapping(string => mapping(string => uint256)) private modelToSpecId;
 
     mapping(address => bool) private _approvedStores;
 
@@ -78,12 +78,12 @@ contract Devices is ERC1155, Ownable {
         return specs[specId];
     }
 
-    function getSpecsByModel(string memory model)
+    function getSpecsByModel(string memory model, string memory color)
         public
         view
         returns (Spec memory)
     {
-        uint256 specId = modelToSpecId[model];
+        uint256 specId = modelToSpecId[model][color];
 
         if (specId != 0) return specs[specId];
     }
@@ -94,6 +94,7 @@ contract Devices is ERC1155, Ownable {
         uint256 price,
         bytes memory others
     ) internal onlyOwner returns (uint256) {
+        require(modelToSpecId[model][color] == 0, "spec already exists");
         specs.push(Spec(model, color, price, others));
         return specs.length - 1;
     }
@@ -105,7 +106,10 @@ contract Devices is ERC1155, Ownable {
         uint256 price,
         bytes calldata others
     ) external onlyOwner {
+        Spec storage spec = specs[id];
+        modelToSpecId[spec.model][spec.color] = 0;
         specs[id] = Spec(model, color, price, others);
+        modelToSpecId[model][color] = id;
     }
 
     function _incrementTokenTypeId() private {
@@ -163,7 +167,7 @@ contract Devices is ERC1155, Ownable {
         tokenSupply[id] = _initialSupply;
         tokenMaxSupply[id] = _maxSupply;
 
-        modelToSpecId[model] = createNewSpec(model, color, price, "");
+        modelToSpecId[model][color] = createNewSpec(model, color, price, "");
 
         _incrementTokenTypeId();
         return id;
