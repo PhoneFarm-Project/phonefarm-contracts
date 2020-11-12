@@ -94,6 +94,7 @@ contract Devices is ERC1155, Ownable {
         uint256 price,
         bytes memory others
     ) internal onlyOwner returns (uint256) {
+        require(modelToSpecId[model][color] == 0, "spec already exists");
         specs.push(Spec(model, color, price, others));
         return specs.length - 1;
     }
@@ -105,6 +106,8 @@ contract Devices is ERC1155, Ownable {
         uint256 price,
         bytes calldata others
     ) external onlyOwner {
+        Spec storage spec = specs[id];
+        modelToSpecId[spec.model][spec.color] = 0;
         specs[id] = Spec(model, color, price, others);
         modelToSpecId[model][color] = id;
     }
