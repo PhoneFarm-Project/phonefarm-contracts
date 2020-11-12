@@ -20,6 +20,13 @@ contract Store is Ownable {
         iPhone = ERC20(iPhoneContractAddress);
     }
 
+    function updateDeviceContract(address newDeviceContractAddress)
+        public
+        onlyOwner
+    {
+        device = Devices(newDeviceContractAddress);
+    }
+
     function buyDevices(
         uint256 id,
         uint256 amount,
