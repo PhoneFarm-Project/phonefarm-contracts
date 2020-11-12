@@ -106,6 +106,7 @@ contract Devices is ERC1155, Ownable {
         uint256 price,
         bytes calldata others
     ) external onlyOwner {
+        require(id < _currentTokenId && id > 0, "invalid spec id");
         Spec storage spec = specs[id];
         modelToSpecId[spec.model][spec.color] = 0;
         specs[id] = Spec(model, color, price, others);
