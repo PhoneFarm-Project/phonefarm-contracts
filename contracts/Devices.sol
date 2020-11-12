@@ -106,6 +106,7 @@ contract Devices is ERC1155, Ownable {
         bytes calldata others
     ) external onlyOwner {
         specs[id] = Spec(model, color, price, others);
+        modelToSpecId[model][color] = id;
     }
 
     function _incrementTokenTypeId() private {
